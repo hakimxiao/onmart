@@ -3,7 +3,7 @@ import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
 
 function App() {
   return (
-    <>
+    <div>
       <header>
         <Show when="signed-out">
           <SignInButton mode="modal" />
@@ -13,7 +13,7 @@ function App() {
           <UserButton />
         </Show>
       </header>
-    </>
+    </div>
   );
 }
 

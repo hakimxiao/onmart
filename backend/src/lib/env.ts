@@ -20,7 +20,7 @@ const envSchema = z.object({
   POOLAR_CHECKOUT_PRODUCT_ID: z.string(),
 
   STREAM_API_KEY: z.string().min(1),
-  STREAM_API__SECRET: z.string().min(1),
+  STREAM_API_SECRET: z.string().min(1),
 
   IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1),
