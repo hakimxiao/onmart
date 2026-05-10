@@ -2,12 +2,26 @@ import {
   pgTable,
   text,
   uuid,
-  timestamp,
   integer,
   boolean,
   jsonb,
+  customType,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
+import { formatTimeId } from "../lib/formatTimeId";
+
+export const timestampWIB = customType<{ data: string; driverData: string | Date }>({
+  dataType() {
+    return "timestamp with time zone";
+  },
+  toDriver(value: string | Date) {
+    return new Date(value);
+  },
+  fromDriver(value: string | Date) {
+    return formatTimeId(value) as string;
+  },
+});
+
 
 export type OrderStatus = "pending" | "paid" | "failed";
 export type UserRole = "customer" | "support" | "admin";
@@ -24,11 +38,11 @@ export const users = pgTable("users", {
   email: text("email").notNull().default(""),
   displayName: text("display_name"),
   role: text("role").$type<UserRole>().notNull().default("customer"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
+  createdAt: timestampWIB("created_at")
+    .default(sql`now()`)
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
+  updatedAt: timestampWIB("updated_at")
+    .default(sql`now()`)
     .notNull(),
 });
 
@@ -44,8 +58,8 @@ export const products = pgTable("products", {
   // ImageKit 'fileId' for deletes
   imageKitFileId: text("image_kit_file_id"),
   active: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
+  createdAt: timestampWIB("created_at")
+    .default(sql`now()`)
     .notNull(),
 });
 
@@ -58,8 +72,8 @@ export const checkoutSessions = pgTable("checkout_sessions", {
   lines: jsonb("lines").$type<CheckoutSessionLine[]>().notNull(),
   totalCents: integer("total_cents").notNull(),
   currency: text("currency").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
+  createdAt: timestampWIB("created_at")
+    .default(sql`now()`)
     .notNull(),
 });
 
@@ -72,11 +86,11 @@ export const orders = pgTable("orders", {
   polarCheckoutId: text("polar_checkout_id"),
   polarOrderId: text("polar_order_id").unique(),
   totalCents: integer("total_cents").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
+  createdAt: timestampWIB("created_at")
+    .default(sql`now()`)
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
+  updatedAt: timestampWIB("updated_at")
+    .default(sql`now()`)
     .notNull(),
 });
 
