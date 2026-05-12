@@ -9,6 +9,10 @@ import { clerkMiddleware } from "@clerk/express";
 import { clerkWebHookHandler } from "./webhooks/clerk";
 import { getEnv } from "./lib/env";
 
+import meRouter from "./routes/meRouter";
+import productRouter from "./routes/productRouter";
+import streamRouter from "./routes/streamRouter";
+
 const env = getEnv();
 const app = express();
 
@@ -41,5 +45,11 @@ if (fs.existsSync(publicDir)) {
     res.sendFile(path.join(publicDir, "index.html"), (err) => next(err));
   });
 }
+
+app.use("/api/me", meRouter);
+app.use("/api/products", productRouter);
+app.use("/api/stream", streamRouter);
+
+// TODO:
 
 app.listen(env.PORT, () => console.log("Listening on port", env.PORT));
