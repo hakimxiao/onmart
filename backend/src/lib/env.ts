@@ -15,9 +15,9 @@ const envSchema = z.object({
 
   POLAR_ACCESS_TOKEN: z.string().optional(),
   POLAR_WEBHOOK_SECRET: z.string().optional(),
-  POLAR_API_BASE: z.string().url().default("https://api.polar.sh"),
+  POLAR_API_BASE: z.string().url().default("https://sanbox-api.polar.sh"),
   //   TODO: UUID
-  POOLAR_CHECKOUT_PRODUCT_ID: z.string(),
+  POOLAR_CHECKOUT_PRODUCT_ID: z.string().uuid(),
 
   STREAM_API_KEY: z.string().min(1),
   STREAM_API_SECRET: z.string().min(1),
