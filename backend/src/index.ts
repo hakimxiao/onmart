@@ -5,6 +5,8 @@ import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
 
+import * as Sentry from "@sentry/node";
+
 import { clerkMiddleware } from "@clerk/express";
 import { clerkWebHookHandler } from "./webhooks/clerk";
 import { getEnv } from "./lib/env";
@@ -14,6 +16,8 @@ import productRouter from "./routes/productRouter";
 import streamRouter from "./routes/streamRouter";
 import checkoutRouter from "./routes/checkoutRouter";
 import { polarWebhookHandler } from "./webhooks/polar";
+import { error } from "node:console";
+import { sentryClerkUserMiddleware } from "./middleware/sentryClerkUser";
 
 const env = getEnv();
 const app = express();
@@ -31,6 +35,7 @@ app.post("/webhooks/polar", rawJson, (req, res) => {
 app.use(express.json());
 app.use(cors());
 app.use(clerkMiddleware());
+app.use(sentryClerkUserMiddleware);
 
 const publicDir = path.join(process.cwd(), "public");
 if (fs.existsSync(publicDir)) {
@@ -56,6 +61,21 @@ app.use("/api/products", productRouter);
 app.use("/api/stream", streamRouter);
 app.use("/api/checkout", checkoutRouter);
 
-// TODO:
+Sentry.setupExpressErrorHandler(app);
+app.use(
+  (
+    _err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    const sentryId = (res as express.Response & { sentry?: string }).sentry;
+
+    res.status(500).json({
+      error: "Internal server error",
+      ...(sentryId !== undefined && { sentryId }),
+    });
+  },
+);
 
 app.listen(env.PORT, () => console.log("Listening on port", env.PORT));
