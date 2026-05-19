@@ -15,8 +15,9 @@ import meRouter from "./routes/meRouter";
 import productRouter from "./routes/productRouter";
 import streamRouter from "./routes/streamRouter";
 import checkoutRouter from "./routes/checkoutRouter";
+import adminRouter from "./routes/adminRouter";
+
 import { polarWebhookHandler } from "./webhooks/polar";
-import { error } from "node:console";
 import { sentryClerkUserMiddleware } from "./middleware/sentryClerkUser";
 
 const env = getEnv();
@@ -60,6 +61,7 @@ app.use("/api/me", meRouter);
 app.use("/api/products", productRouter);
 app.use("/api/stream", streamRouter);
 app.use("/api/checkout", checkoutRouter);
+app.use("/api/admin", adminRouter);
 
 Sentry.setupExpressErrorHandler(app);
 app.use(
