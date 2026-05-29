@@ -10,7 +10,10 @@ import {
 import { relations, sql } from "drizzle-orm";
 import { formatTimeId } from "../lib/formatTimeId";
 
-export const timestampWIB = customType<{ data: string; driverData: string | Date }>({
+export const timestampWIB = customType<{
+  data: string;
+  driverData: string | Date;
+}>({
   dataType() {
     return "timestamp with time zone";
   },
@@ -21,7 +24,6 @@ export const timestampWIB = customType<{ data: string; driverData: string | Date
     return formatTimeId(value) as string;
   },
 });
-
 
 export type OrderStatus = "pending" | "paid" | "failed";
 export type UserRole = "customer" | "support" | "admin";
