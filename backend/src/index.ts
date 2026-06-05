@@ -39,6 +39,13 @@ app.use(cors());
 app.use(clerkMiddleware());
 app.use(sentryClerkUserMiddleware);
 
+app.use("/api/me", meRouter);
+app.use("/api/products", productRouter);
+app.use("/api/stream", streamRouter);
+app.use("/api/checkout", checkoutRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/orders", orderRouter);
+
 const publicDir = path.join(process.cwd(), "public");
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
@@ -58,14 +65,8 @@ if (fs.existsSync(publicDir)) {
   });
 }
 
-app.use("/api/me", meRouter);
-app.use("/api/products", productRouter);
-app.use("/api/stream", streamRouter);
-app.use("/api/checkout", checkoutRouter);
-app.use("/api/admin", adminRouter);
-app.use("/api/orders", orderRouter);
-
 Sentry.setupExpressErrorHandler(app);
+
 app.use(
   (
     _err: unknown,
@@ -82,4 +83,4 @@ app.use(
   },
 );
 
-app.listen(env.PORT, () => console.log("Listening on port", env.PORT));
+app.listen(env.PORT, () => console.log("Listening on port:", env.PORT));
