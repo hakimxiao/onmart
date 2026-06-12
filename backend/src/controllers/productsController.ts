@@ -17,7 +17,7 @@ export async function listProducts(
       ? and(activeOnly, eq(products.category, cat))
       : activeOnly;
 
-    const rows = db
+    const rows = await db
       .select()
       .from(products)
       .where(whereClause)

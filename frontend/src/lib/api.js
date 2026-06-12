@@ -5,7 +5,10 @@ const base = typeof raw === "string" ? raw.replace(/\/+$/, "") : ""; // remove t
 
 export async function apiFetch(path, opts = {}) {
   const { getToken, method = "GET", body } = opts;
-  const headers = { "Content-Type": "application/json" };
+  const headers = {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  };
 
   if (getToken) {
     const token = await getToken();

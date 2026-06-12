@@ -25,6 +25,15 @@ const env = getEnv();
 const app = express();
 
 const rawJson = express.raw({ type: "application/json", limit: "1mb" });
+const corsOptions: cors.CorsOptions = {
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "sentry-trace",
+    "baggage",
+    "ngrok-skip-browser-warning",
+  ],
+};
 
 // it's important that you don't parse the webhook event data, it should be in the raw format raw format
 app.post("/webhooks/clerk", rawJson, (req, res) => {
@@ -34,8 +43,8 @@ app.post("/webhooks/polar", rawJson, (req, res) => {
   void polarWebhookHandler(req, res);
 });
 
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cors());
 app.use(clerkMiddleware());
 app.use(sentryClerkUserMiddleware);
 

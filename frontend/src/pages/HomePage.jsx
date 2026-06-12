@@ -2,6 +2,7 @@ import { useHomeCatalog } from "../hooks/useHomeCatalog";
 import { HomeHero } from "../components/HomeHero";
 import { TrusrtStrip } from "../components/TrustStrip";
 import PageError from "../components/PageError";
+import CatalogProductCard from "../components/CatalogProductCard";
 
 const HomePage = () => {
   const {

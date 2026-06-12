@@ -30,7 +30,7 @@ export function useHomeCatalog() {
       apiFetch(
         categoryFilter
           ? `/api/products?category=${encodeURIComponent(categoryFilter)}`
-          : "/api/category",
+          : "/api/products",
       ),
   });
 
