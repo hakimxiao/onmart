@@ -7,6 +7,8 @@ import {
 } from "@clerk/react";
 import PageLoader from "./components/PageLoader";
 import Layout from "./components/Layout";
+import { Route, Routes } from "react-router";
+import HomePage from "./pages/HomePage";
 
 function App() {
   const { isLoaded } = useAuth();
@@ -14,17 +16,9 @@ function App() {
 
   return (
     <Layout>
-      <div>
-        <header>
-          <Show when="signed-out">
-            <SignInButton mode="modal" />
-            <SignUpButton mode="modal" />
-          </Show>
-          <Show when="signed-in">
-            <UserButton />
-          </Show>
-        </header>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
     </Layout>
   );
 }
