@@ -27,7 +27,7 @@ export async function createCheckoutController(
   next: NextFunction,
 ) {
   try {
-    // onlyu signed-in users can start checkout
+    // only signed-in users can start checkout
     const { userId, isAuthenticated } = getAuth(req);
     if (!isAuthenticated || !userId) {
       res.status(401).json({ error: "Unauthorized" });
