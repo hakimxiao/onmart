@@ -11,13 +11,12 @@ const envSchema = z.object({
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_WEBHOOK_SECRET: z.string().optional(),
 
-  FRONTED_URL: z.string().url(),
+  FRONTEND_URL: z.string().url(),
 
   POLAR_ACCESS_TOKEN: z.string().optional(),
   POLAR_WEBHOOK_SECRET: z.string().optional(),
   POLAR_API_BASE: z.string().url().default("https://sandbox-api.polar.sh"),
-  //   TODO: UUID
-  POOLAR_CHECKOUT_PRODUCT_ID: z.string().uuid(),
+  POLAR_CHECKOUT_PRODUCT_ID: z.string().uuid(),
 
   STREAM_API_KEY: z.string().min(1),
   STREAM_API_SECRET: z.string().min(1),

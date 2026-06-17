@@ -17,6 +17,17 @@ type CheckoutCreateBody = {
   metadata?: Record<string, string | number | boolean>;
 };
 
+export class PolarCheckoutError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly responseText: string,
+  ) {
+    super(message);
+    this.name = "PolarCheckoutError";
+  }
+}
+
 export async function polarCreateCheckout(env: Env, body: CheckoutCreateBody) {
   const token = env.POLAR_ACCESS_TOKEN;
   if (!token)
@@ -33,7 +44,11 @@ export async function polarCreateCheckout(env: Env, body: CheckoutCreateBody) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Polar checkout failed: ${res.status} ${errText}`);
+    throw new PolarCheckoutError(
+      `Polar checkout failed with status ${res.status}`,
+      res.status,
+      errText,
+    );
   }
 
   const data = (await res.json()) as { id: string; url: string };

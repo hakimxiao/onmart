@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export default function useCartPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
 
   const { getToken } = useAuth();
 
@@ -21,7 +22,7 @@ export default function useCartPage() {
   } = useQuery({
     queryKey: ["products"],
     queryFn: () => apiFetch("/api/products"),
-    ennabled: items.length > 0,
+    enabled: items.length > 0,
   });
 
   const products = data?.products ?? [];
@@ -38,6 +39,7 @@ export default function useCartPage() {
 
   async function checkout() {
     setCheckoutLoading(true);
+    setCheckoutError(null);
 
     const body = {
       items: items.map((i) => ({
@@ -46,18 +48,24 @@ export default function useCartPage() {
       })),
     };
 
-    const res = await apiFetch("/api/checkout", {
-      getToken,
-      method: "POST",
-      body,
-    });
+    try {
+      const res = await apiFetch("/api/checkout", {
+        getToken,
+        method: "POST",
+        body,
+      });
 
-    if (res?.checkoutUrl) {
-      window.location.href = res.checkoutUrl;
-      return;
+      if (res?.checkoutUrl) {
+        window.location.href = res.checkoutUrl;
+        return;
+      }
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error ? error.message : "Could not open checkout",
+      );
+    } finally {
+      setCheckoutLoading(false);
     }
-
-    setCheckoutLoading(false);
   }
 
   return {
@@ -70,5 +78,6 @@ export default function useCartPage() {
     subTotal,
     checkout,
     checkoutLoading,
+    checkoutError,
   };
 }

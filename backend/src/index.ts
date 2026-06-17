@@ -78,11 +78,13 @@ Sentry.setupExpressErrorHandler(app);
 
 app.use(
   (
-    _err: unknown,
+    err: unknown,
     _req: express.Request,
     res: express.Response,
     _next: express.NextFunction,
   ) => {
+    console.error("Unhandled request error", err);
+
     const sentryId = (res as express.Response & { sentry?: string }).sentry;
 
     res.status(500).json({

@@ -18,6 +18,7 @@ import { Show, SignInButton } from "@clerk/react";
 const CartPage = () => {
   const {
     checkout,
+    checkoutError,
     checkoutLoading,
     items,
     lines,
@@ -147,7 +148,7 @@ const CartPage = () => {
             <div className="flex justify-between text-sm">
               <span className="text-base-content/70">Subtotal</span>
               <span className="font-semibold text-base-content">
-                {formatPrice(subTotal, lines[0]?.product.currency ?? "usd")}
+                {formatPrice(subTotal, lines[0]?.product?.currency ?? "usd")}
               </span>
             </div>
 
@@ -170,6 +171,10 @@ const CartPage = () => {
                 {checkoutLoading ? "Opening checkout..." : "Checkout securely"}
               </button>
             </Show>
+
+            {checkoutError ? (
+              <p className="mt-3 text-sm text-error">{checkoutError}</p>
+            ) : null}
 
             <Show when="signed-out">
               <SignInButton mode="modal">

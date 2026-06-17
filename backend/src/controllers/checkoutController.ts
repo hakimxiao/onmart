@@ -6,7 +6,7 @@ import { getLocalUser } from "../lib/users";
 import { db } from "../db";
 import { CheckoutSessionLine, checkoutSessions, products } from "../db/schema";
 import { and, inArray, eq } from "drizzle-orm";
-import { polarCreateCheckout } from "../lib/polar";
+import { PolarCheckoutError, polarCreateCheckout } from "../lib/polar";
 
 const env = getEnv();
 
@@ -71,9 +71,15 @@ export async function createCheckoutController(
     const byId = new Map(prodRows.map((p) => [p.id, p]));
     let totalCents = 0;
     const lines: CheckoutSessionLine[] = [];
+    const currency = prodRows[0]?.currency?.toLowerCase() ?? "usd";
 
     for (const line of parsed.data.items) {
       const p = byId.get(line.productId)!;
+      if (p.currency.toLowerCase() !== currency) {
+        res.status(400).json({ error: "Cart items must use the same currency" });
+        return;
+      }
+
       totalCents += p.priceCents * line.quantity;
       lines.push({
         productId: p.id,
@@ -95,32 +101,53 @@ export async function createCheckoutController(
         userId: localUser.id,
         lines,
         totalCents,
-        currency: "idr",
+        currency,
       })
       .returning();
 
-    const successUrl = `${env.FRONTED_URL}/checkout/return?checkout_id={CHECKOUT_ID}`;
-    const returnUrl = `${env.FRONTED_URL}/cart`;
+    const frontendUrl = env.FRONTEND_URL.replace(/\/+$/, "");
+    const successUrl = `${frontendUrl}/checkout/return?checkout_id={CHECKOUT_ID}`;
+    const returnUrl = `${frontendUrl}/cart`;
 
-    const checkout = await polarCreateCheckout(env, {
-      products: [env.POOLAR_CHECKOUT_PRODUCT_ID],
-      prices: {
-        [env.POOLAR_CHECKOUT_PRODUCT_ID]: [
-          {
-            amount_type: "fixed",
-            price_currency: "idr",
-            price_amount: totalCents,
-          },
-        ],
-      },
+    let checkout;
+    try {
+      checkout = await polarCreateCheckout(env, {
+        products: [env.POLAR_CHECKOUT_PRODUCT_ID],
+        prices: {
+          [env.POLAR_CHECKOUT_PRODUCT_ID]: [
+            {
+              amount_type: "fixed",
+              price_currency: currency,
+              price_amount: totalCents,
+            },
+          ],
+        },
 
-      success_url: successUrl,
-      return_url: returnUrl,
-      external_customer_id: userId,
-      metadata: {
-        checkout_session_id: session.id,
-      },
-    });
+        success_url: successUrl,
+        return_url: returnUrl,
+        external_customer_id: userId,
+        metadata: {
+          checkout_session_id: session.id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PolarCheckoutError) {
+        console.error("Polar checkout error", {
+          status: error.status,
+          response: error.responseText,
+        });
+
+        res.status(502).json({
+          error: "Payment provider rejected checkout configuration",
+          ...(env.NODE_ENV === "development" && {
+            details: error.responseText,
+          }),
+        });
+        return;
+      }
+
+      throw error;
+    }
 
     await db
       .update(checkoutSessions)
