@@ -21,7 +21,7 @@ export async function listOrders(
 ) {
   try {
     const { userId, isAuthenticated } = getAuth(req);
-    if (!isAuthenticated || userId) {
+    if (!isAuthenticated || !userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -140,7 +140,7 @@ export async function createStreamChannel(
 ) {
   try {
     const { userId, isAuthenticated } = getAuth(req);
-    if (!isAuthenticated || userId) {
+    if (!isAuthenticated || !userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -215,7 +215,7 @@ export async function createVideoInvite(
 ) {
   try {
     const { userId, isAuthenticated } = getAuth(req);
-    if (!isAuthenticated || userId) {
+    if (!isAuthenticated || !userId) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
