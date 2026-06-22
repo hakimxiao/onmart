@@ -8,6 +8,9 @@ import OrdersPage from "./pages/OrdersPage";
 import CheckoutReturnPage from "./pages/CheckoutReturnPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import { SentryDemoPage } from "./pages/SentryDemoPage";
+import OrderDetialPage from "./pages/OrderDetialPage";
+import OrderSummaryPage from "./pages/OrderSummaryPage";
+import OrderChatPage from "./pages/OrderChatPage";
 
 function App() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -25,6 +28,13 @@ function App() {
         />
         <Route path="/checkout/return" element={<CheckoutReturnPage />} />
         <Route path="/demo-sentry" element={<SentryDemoPage />} />
+
+        {/* NESTED ROUTES */}
+        {/* Nested routes digunakan jika kita ingin 1 halaman memiliki 1 halaman di kunci dan didalam nya ada halaman yang bisa berganti*/}
+        <Route path="/orders/:id" element={<OrderDetialPage />}>
+          <Route index element={<OrderSummaryPage />} />
+          <Route path="chat" element={<OrderChatPage />} />
+        </Route>
       </Routes>
     </Layout>
   );
