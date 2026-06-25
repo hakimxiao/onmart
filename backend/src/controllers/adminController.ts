@@ -202,8 +202,9 @@ export async function deleteAdminProducts(
 
     if (Number(countRow?.c ?? 0) > 0) {
       res.status(409).json({
+        code: "PRODUCT_HAS_ORDERS",
         error:
-          "This product is on one or more orders and cannot ne deleted, Deactivate it instead.",
+          "This product is on one or more orders and cannot be deleted. Deactivate it instead.",
       });
       return;
     }

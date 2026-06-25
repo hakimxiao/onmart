@@ -40,7 +40,9 @@ export async function apiFetch(path, opts = {}) {
     throw error;
   }
 
-  const data = await res.json();
+  const contentType = res.headers.get("content-type") ?? "";
+  const isJson = contentType.includes("application/json");
+  const data = isJson ? await res.json() : await res.text();
 
   Sentry.addBreadcrumb({
     category: "api",
@@ -50,8 +52,14 @@ export async function apiFetch(path, opts = {}) {
   });
 
   if (!res.ok) {
-    const msg = typeof data?.error === "string" ? data.error : res.statusText;
+    const msg =
+      isJson && typeof data?.error === "string"
+        ? data.error
+        : res.statusText || "Request failed";
     const err = new Error(typeof msg === "string" ? msg : "Request failed");
+    err.status = res.status;
+    err.data = data;
+    err.code = isJson && typeof data?.code === "string" ? data.code : undefined;
 
     if (res.status >= 500) {
       Sentry.captureException(err, {
@@ -61,6 +69,10 @@ export async function apiFetch(path, opts = {}) {
     }
 
     throw err;
+  }
+
+  if (!isJson) {
+    throw new Error(`Expected JSON response, got ${contentType || "unknown"}`);
   }
 
   return data;
